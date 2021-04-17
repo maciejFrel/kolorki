@@ -8,6 +8,15 @@
         Blue,
         Green,
         Purple,
-        Brown
+        Brown,
+        Orange,
+        Aqua,
+        Gray,
+        Lime,
+        Pink,
+        Navy,
+        Teal,
+        Coral,
+        Violet
     }
 }

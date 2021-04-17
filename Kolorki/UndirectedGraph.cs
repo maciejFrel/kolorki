@@ -64,5 +64,29 @@ namespace Kolorki
                 Console.WriteLine(Environment.NewLine);
             }
         }
+
+        public List<GraphNode> GetNeighbours(int vertex)
+        {
+            var neighbours = new List<GraphNode>();
+
+            for (int i = 0; i < GetNumberOfVertices(); i++)
+            {
+                if (AdjenancyMatrix[vertex, i].Exists)
+                {
+                    neighbours.Add(AdjenancyMatrix[vertex, i]);
+                }
+            }
+            
+            return neighbours;
+        }
+
+        internal void SetColor(int vertex, Color color)
+        {
+            for (int i = 0; i < GetNumberOfVertices(); i++)
+            {
+                AdjenancyMatrix[vertex, i].Color = color;
+                AdjenancyMatrix[i, vertex].Color = color;
+            }
+        }
     }
 }

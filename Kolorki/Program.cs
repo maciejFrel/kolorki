@@ -6,7 +6,9 @@ namespace Kolorki
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var graph = new UndirectedGraphIO().ReadFromFile("test.txt");
+            graph.Print();
+            var c = new GraphColoringGreedy(graph).Color();
         }
     }
 }
