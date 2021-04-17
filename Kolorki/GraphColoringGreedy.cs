@@ -8,10 +8,12 @@ namespace Kolorki
     public class GraphColoringGreedy
     {
         private UndirectedGraph _graph;
+        private IEnumerable<Color> _colors;
 
         public GraphColoringGreedy(UndirectedGraph graph)
         {
             _graph = graph;
+            _colors = Enum.GetValues(typeof(Color)).Cast<Color>();
         }
 
         public int Color()
@@ -24,7 +26,9 @@ namespace Kolorki
             {
                 var usedNeighbourColors = GetNeighbourColors(i);
                 var firstAvailableColor = GetFirstAvailableColor(usedNeighbourColors);
+
                 _graph.SetColor(i, firstAvailableColor);
+
                 if (!usedColors.Contains(firstAvailableColor))
                 {
                     usedColors.Add(firstAvailableColor);
@@ -35,11 +39,9 @@ namespace Kolorki
             return result;
         }
 
-        private Color GetFirstAvailableColor(List<Color> usedNeighbourColors)
+        private Color GetFirstAvailableColor(List<Color?> usedNeighbourColors)
         {
-            var tmp = Enum.GetValues(typeof(Color)).Cast<Color>();
-
-            foreach (var color in tmp)
+            foreach (var color in _colors)
             {
                 if (!usedNeighbourColors.Contains(color))
                 {
@@ -50,7 +52,7 @@ namespace Kolorki
             throw new Exception("All colors are already in use");
         }
 
-        private List<Color> GetNeighbourColors(int vertex)
+        private List<Color?> GetNeighbourColors(int vertex)
         {
             var neighbours = _graph.GetNeighbours(vertex);
 

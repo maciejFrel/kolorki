@@ -25,9 +25,11 @@ namespace Kolorki
         public void AddEdge(int[] vertices) => AddEdge(vertices[0], vertices[1]);
 
         public void AddEdge(int vertex1, int vertex2)
-        {
+        { 
             AdjenancyMatrix[vertex1 - 1, vertex2 - 1].Exists = true;
+            AdjenancyMatrix[vertex1 - 1, vertex2 - 1].Color = null;
             AdjenancyMatrix[vertex2 - 1, vertex1 - 1].Exists = true;
+            AdjenancyMatrix[vertex2 - 1, vertex1 - 1].Color = null;
         }
 
         public List<Tuple<int, int>> GetEdgesList()
@@ -71,7 +73,7 @@ namespace Kolorki
 
             for (int i = 0; i < GetNumberOfVertices(); i++)
             {
-                if (AdjenancyMatrix[vertex, i].Exists)
+                if (AdjenancyMatrix[vertex, i].Exists && i != vertex)
                 {
                     neighbours.Add(AdjenancyMatrix[vertex, i]);
                 }
