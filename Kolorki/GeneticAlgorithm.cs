@@ -200,6 +200,10 @@ namespace Kolorki
             for (int i = 0; i < graph.GetNumberOfVertices(); i++)
             {
                 var neightboursColors = graph.GetNeighbourColors(i);
+                if (i == 999)
+                {
+                    int a = 1;
+                }
                 var color = graph.GetColor(i);
                 if (neightboursColors.Contains(color))
                 {
@@ -228,10 +232,6 @@ namespace Kolorki
                         var color = _colors[random.Next(0, _colors.Count - 1)];
                         if (!neightboursColors.Contains(color))
                         {
-                            if (i == 999)
-                            {
-                                var a = 1;
-                            }
                             graph.SetColor(i, color);
                             break;
                         }

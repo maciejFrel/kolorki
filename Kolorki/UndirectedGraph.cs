@@ -88,10 +88,6 @@ namespace Kolorki
 
         internal void SetColor(int vertex, Color color)
         {
-            if (vertex == 999)
-            {
-                var a = 1;
-            }
             for (int i = 0; i < GetNumberOfVertices(); i++)
             {
                 AdjenancyMatrix[vertex, i].Color = color;
