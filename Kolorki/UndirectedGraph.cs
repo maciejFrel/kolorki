@@ -123,7 +123,7 @@ namespace Kolorki
         {
             var neighbours = GetNeighbours(vertex);
 
-            return neighbours.Select(x => x.Color).ToList();
+            return neighbours.Where(x => x.Color != null).Select(x => x.Color).ToList();
         }
 
         public UndirectedGraph Clone()

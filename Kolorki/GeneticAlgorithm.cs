@@ -33,7 +33,7 @@ namespace Kolorki
         {
             var i = 0;
 
-            while (PopulationCycles < 20)
+            while (PopulationCycles < 20000)
             {
                 if (i != 0)
                 {
