@@ -9,6 +9,7 @@ namespace Kolorki
         private List<UndirectedGraph> population { get; set; }
         private int PopulationCycles = 0;
         private readonly List<Color> _colors;
+        private int PopulationSize = 0;
 
         public GeneticAlgorithm(
             int populationNumber,
@@ -16,6 +17,7 @@ namespace Kolorki
         {
             population = new List<UndirectedGraph>();
             PopulationCycles = populationNumber;
+            PopulationSize = populationNumber;
 
             _colors = Enum.GetValues(typeof(Color)).Cast<Color>().ToList();
 
@@ -29,19 +31,28 @@ namespace Kolorki
 
         public int Run()
         {
-            var parents = population;
             var i = 0;
 
-            while (PopulationCycles < 100)
+            while (PopulationCycles < 20)
             {
                 if (i != 0)
                 {
-                    parents = GetBestHalf();
+                    population = GetBestHalf();
+                    var currentPopulatioSize = population.Count;
+                    while (currentPopulatioSize < PopulationSize)
+                    {
+                        var a = population[0].Clone();
+                        ColorRandomly(a);
+                        population.Add(a);
+                        currentPopulatioSize++;
+                    }
+                    PopulationCycles += population.Count / 2;
                 }
-                var bestParents = GetBestParents(parents);
+                var bestParents = GetBestParents(population);
                 var child = Crossover(bestParents.Item1, bestParents.Item2);
                 Mutate(child);
                 population.Add(child);
+                i++;
             }
 
             var bestGraph = WisdomOfArtificialCrowds();
@@ -94,10 +105,9 @@ namespace Kolorki
             {
                 parent.Fitness = Fitness(parent);
             }
-
-            var lowestFitnessIndex = results.IndexOf(results.Min());
-
-            return population.OrderBy(x => x.Fitness).Skip(numberOfBestParents).ToList();
+            var aa = population.OrderBy(x => x.Fitness).Take(numberOfBestParents).ToList();
+            var min = population.Min(x => x.Fitness);
+            return aa;
         }
 
         public UndirectedGraph GetBestParent(List<UndirectedGraph> parents)
@@ -172,7 +182,7 @@ namespace Kolorki
                     }
                 }
             }
-            return (Dictionary<Color, int>)dict.OrderByDescending(x => x.Value);
+            return dict.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
         }
 
         public UndirectedGraph Crossover(UndirectedGraph parent1, UndirectedGraph parent2)
@@ -180,7 +190,7 @@ namespace Kolorki
             var random = new Random();
             var crosspoint = random.Next(0, parent1.GetNumberOfVertices() - 1);
             var graph = new UndirectedGraph(parent1.GetNumberOfVertices());
-            for (int i = 0; i < parent1.GetNumberOfVertices() - 1; i++)
+            for (int i = 0; i < parent1.GetNumberOfVertices(); i++)
             {
                 if (i < crosspoint)
                 {
@@ -200,10 +210,6 @@ namespace Kolorki
             for (int i = 0; i < graph.GetNumberOfVertices(); i++)
             {
                 var neightboursColors = graph.GetNeighbourColors(i);
-                if (i == 999)
-                {
-                    int a = 1;
-                }
                 var color = graph.GetColor(i);
                 if (neightboursColors.Contains(color))
                 {
@@ -215,6 +221,30 @@ namespace Kolorki
                     
                     colors.OrderBy(x => random.Next(0, colors.Count - 1));
                     graph.SetColor(i, colors.FirstOrDefault());
+                }
+            }
+        }
+
+        public void ColorRandomly(UndirectedGraph graph)
+        {
+            var random = new Random();
+            for (int i = 0; i < graph.GetNumberOfVertices(); i++)
+            {
+                var neightboursColors = graph.GetNeighbourColors(i);
+                while (true)
+                {
+                    var colors = Enum.GetValues(typeof(Color)).Cast<Color>().ToList();
+                    foreach (var neighbourColor in neightboursColors)
+                    {
+                        colors.Remove((Color)neighbourColor);
+                    }
+                    if (colors.Count == 0)
+                    {
+                        throw new Exception("Not enough colors");
+                    }
+                    colors.OrderBy(x => random.Next(0, colors.Count - 1));
+                    graph.SetColor(i, colors.FirstOrDefault());
+                    break;
                 }
             }
         }

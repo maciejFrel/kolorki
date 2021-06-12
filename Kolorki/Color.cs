@@ -23,7 +23,7 @@
         Olive,
         Khaki,
         Ivory,
-        Cyan,
+        /*Cyan,
         Chocolate,
         Azure,
         AliceBlue,
@@ -45,8 +45,7 @@
         ANavy,
         ATeal,
         ACoral,
-        AViolet,
-        ASilver,
+        /*ASilver,
         ASeaGreen,
         AOlive,
         AKhaki,
@@ -315,6 +314,6 @@
         AEAliceBlue,
         AEOldLace,
         AEPaleGreen,
-        AEYellowGreen,
+        AEYellowGreen,*/
     }
 }

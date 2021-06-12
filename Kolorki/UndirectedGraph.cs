@@ -26,6 +26,21 @@ namespace Kolorki
             }
         }
 
+        public UndirectedGraph(int numberOfVertices, GraphNode[,] martix)
+        {
+            Vertices = numberOfVertices;
+            AdjenancyMatrix = new GraphNode[numberOfVertices, numberOfVertices];
+
+            for (int i = 0; i < numberOfVertices; i++)
+            {
+                for (int j = 0; j < numberOfVertices; j++)
+                {
+                    AdjenancyMatrix[i, j] = new GraphNode();
+                    AdjenancyMatrix[i, j].Exists = martix[i, j].Exists;
+                }
+            }
+        }
+
         public void AddEdge(int[] vertices) => AddEdge(vertices[0], vertices[1]);
 
         public void AddEdge(int vertex1, int vertex2)
@@ -113,10 +128,7 @@ namespace Kolorki
 
         public UndirectedGraph Clone()
         {
-            var serialized = JsonConvert.SerializeObject(this);
-            var graph = JsonConvert.DeserializeObject<UndirectedGraph>(serialized);
-            graph.Vertices = Vertices;
-            return graph;
+            return new UndirectedGraph(Vertices, AdjenancyMatrix);
         }
     }
 }
