@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Text.Json;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Kolorki
 {
     public class UndirectedGraph
     {
-        private readonly int Vertices;
-        private readonly GraphNode[,] AdjenancyMatrix;
+        public int Vertices;
+        public GraphNode[,] AdjenancyMatrix;
+        public int Fitness;
 
         public UndirectedGraph(int numberOfVertices)
         {
@@ -84,11 +88,39 @@ namespace Kolorki
 
         internal void SetColor(int vertex, Color color)
         {
+            if (vertex == 999)
+            {
+                var a = 1;
+            }
             for (int i = 0; i < GetNumberOfVertices(); i++)
             {
                 AdjenancyMatrix[vertex, i].Color = color;
                 AdjenancyMatrix[i, vertex].Color = color;
             }
+        }
+
+        public Color? GetColor(int vertice)
+        {
+            if (AdjenancyMatrix[vertice, vertice].Color == null)
+            {
+                var a = 1;
+            }
+            return AdjenancyMatrix[vertice, vertice].Color;
+        }
+
+        public List<Color?> GetNeighbourColors(int vertex)
+        {
+            var neighbours = GetNeighbours(vertex);
+
+            return neighbours.Select(x => x.Color).ToList();
+        }
+
+        public UndirectedGraph Clone()
+        {
+            var serialized = JsonConvert.SerializeObject(this);
+            var graph = JsonConvert.DeserializeObject<UndirectedGraph>(serialized);
+            graph.Vertices = Vertices;
+            return graph;
         }
     }
 }

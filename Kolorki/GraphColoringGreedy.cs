@@ -23,7 +23,7 @@ namespace Kolorki
 
             for (int i = 0; i < numberOfVertices; i++)
             {
-                var usedNeighbourColors = GetNeighbourColors(i);
+                var usedNeighbourColors = _graph.GetNeighbourColors(i);
                 var firstAvailableColor = GetFirstAvailableColor(usedNeighbourColors);
 
                 _graph.SetColor(i, firstAvailableColor);
@@ -49,13 +49,6 @@ namespace Kolorki
             }
 
             throw new Exception("All colors are already in use");
-        }
-
-        private List<Color?> GetNeighbourColors(int vertex)
-        {
-            var neighbours = _graph.GetNeighbours(vertex);
-
-            return neighbours.Select(x => x.Color).ToList();
         }
     }
 }
