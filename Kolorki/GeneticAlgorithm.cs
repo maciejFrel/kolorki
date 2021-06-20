@@ -53,10 +53,7 @@ namespace Kolorki
                 Mutate(child);
                 population.Add(child);
                 i++;
-                Console.WriteLine("Population cycles: "
-                    + PopulationCycles
-                    + ", fitness of the best graph: "
-                    + Fitness(GetBestParent(population)));
+                Console.WriteLine("Population cycles: " + PopulationCycles);
             }
 
             var bestGraph = WisdomOfArtificialCrowds();

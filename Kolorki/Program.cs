@@ -22,8 +22,8 @@ namespace Kolorki
             var graph = new UndirectedGraphIO().ReadFromFile("../../../../grafy/" + filename);
             var geneticAlgorithm = new GeneticAlgorithm(50, graph);
             geneticAlgorithm.Run();
-            var c = new GraphColoringGreedy(graph).Color();
-            Console.WriteLine(c);
+            // var c = new GraphColoringGreedy(graph).Color();
+            // Console.WriteLine(c);
         }
     }
 
