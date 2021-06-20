@@ -29,7 +29,7 @@ namespace Kolorki
             ColorRandomly();
         }
 
-        public int Run()
+        public void Run()
         {
             var i = 0;
 
@@ -53,10 +53,14 @@ namespace Kolorki
                 Mutate(child);
                 population.Add(child);
                 i++;
+                Console.WriteLine("Population cycles: "
+                    + PopulationCycles
+                    + ", fitness of the best graph: "
+                    + Fitness(GetBestParent(population)));
             }
 
             var bestGraph = WisdomOfArtificialCrowds();
-            return Fitness(bestGraph);
+            Console.WriteLine("Best result: " + Fitness(bestGraph));
         }
 
         public int Fitness(UndirectedGraph graph)
@@ -92,7 +96,7 @@ namespace Kolorki
                             break;
                         } 
                     }
-                } 
+                }
             }
             return bestOne;
         }

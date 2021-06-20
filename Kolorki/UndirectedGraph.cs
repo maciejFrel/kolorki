@@ -112,10 +112,6 @@ namespace Kolorki
 
         public Color? GetColor(int vertice)
         {
-            if (AdjenancyMatrix[vertice, vertice].Color == null)
-            {
-                var a = 1;
-            }
             return AdjenancyMatrix[vertice, vertice].Color;
         }
 
