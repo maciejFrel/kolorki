@@ -24,13 +24,8 @@ namespace Kolorki
         public void Run()
         {
             var colors = Enum.GetValues(typeof(Color)).Cast<Color>().Take(numberOfColors).ToList();
-            var solution = new Dictionary<int, Color>();
+            var solution = CreateRandomInitSolution(colors);
             var random = new Random();
-
-            for (int i = 0; i < graph.GetNumberOfVertices(); i++)
-            {
-                solution.Add(i, colors.ElementAt(random.Next(0, numberOfColors)));
-            }
 
             var bestSolutionSoFar = new Dictionary<int, int>();
             var iterations = 0;
@@ -46,55 +41,45 @@ namespace Kolorki
                     break;
                 Console.WriteLine($"Conflicts {conflicts}");
 
-                //var moveCandidatesList = moveCandidates.ToList();
-                int randomNode = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
-                Dictionary<int, Color> newSolution = new Dictionary<int, Color>(solution); 
+                var randomMoveCandidates = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
+                var newSolution = new Dictionary<int, Color>(solution); 
 
                 for (int r = 0; r < reps; r++)
                 {
-                    var newColor = colors.Where(x => x != solution[randomNode]).ElementAt(random.Next(0, colors.Count - 1));
-                    randomNode = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
+                    var newColor = colors.Where(x => x != solution[randomMoveCandidates]).ElementAt(random.Next(0, colors.Count - 1));
+                    randomMoveCandidates = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
                     newSolution = new Dictionary<int, Color>(solution)
                     {
-                        [randomNode] = newColor
+                        [randomMoveCandidates] = newColor
                     };
 
                     var newConflicts = CountConflictsAndUpdateCandidates(newSolution);
 
-                    if (newConflicts < conflicts)
+                    if (newConflicts >= conflicts)
                     {
-                        var tmp = 0;
-                        if (!bestSolutionSoFar.ContainsKey(conflicts))
-                        {
-                            bestSolutionSoFar.Add(conflicts, conflicts - 1);
-                            tmp = conflicts - 1;
-                        }
-                        else
-                        {
-                            tmp = bestSolutionSoFar[conflicts];
-                        }
-
-                        if (newConflicts <= tmp)
-                        {
-                            bestSolutionSoFar[conflicts] = newConflicts - 1;
-
-                            var tabuElem = new Tuple<int, Color>(randomNode, newColor);
-                            if (tabu.Contains(tabuElem))
-                            {
-                                tabu.Remove(tabuElem);
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (tabu.Contains(new Tuple<int, Color>(randomNode, newColor)))
-                                continue;
-                        }
-                        break;
+                        continue;
                     }
+
+                    if (newConflicts <= DictInserIfNotExistsAndGetValue(bestSolutionSoFar, conflicts))
+                    {
+                        bestSolutionSoFar[conflicts] = newConflicts - 1;
+                        var tabuElem = new Tuple<int, Color>(randomMoveCandidates, newColor);
+
+                        if (tabu.Contains(tabuElem))
+                        {
+                            tabu.Remove(tabuElem);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (tabu.Contains(new Tuple<int, Color>(randomMoveCandidates, newColor)))
+                            continue;
+                    }
+                    break;
                 }
 
-                tabu.Add(new Tuple<int, Color>(randomNode, solution[randomNode]));
+                tabu.Add(new Tuple<int, Color>(randomMoveCandidates, solution[randomMoveCandidates]));
 
                 if (tabu.Count > tabuSize)
                 {
@@ -103,7 +88,6 @@ namespace Kolorki
 
                 solution = newSolution;
                 iterations++;
-
             }
 
             if (conflicts != 0)
@@ -112,28 +96,76 @@ namespace Kolorki
                 Console.WriteLine("Solution found!");
         }
 
+        public int DictInserIfNotExistsAndGetValue(Dictionary<int, int> dict, int value)
+        {
+            int res;
+            if (!dict.ContainsKey(value))
+            {
+                dict.Add(value, value - 1);
+                res = value - 1;
+            }
+            else
+            {
+                res = dict[value];
+            }
+
+            return res;
+        }
+
         public int CountConflictsAndUpdateCandidates(Dictionary<int, Color> solution, HashSet<int> candidates = null)
         {
             var conflicts = 0;
 
+            //Since it's undirect graph go just over upper triangle of adjacency matrix
             for (int i = 0; i < graph.GetNumberOfVertices(); i++)
             {
                 for (int j = i + 1; j < graph.GetNumberOfVertices(); j++)
                 {
-                    if (graph.AdjenancyMatrix[i, j].Exists && solution[i] == solution[j])
+                    if (!IsBadEdge(i, j, solution))
                     {
-                        if (candidates != null)
-                        {
-                            candidates.Add(i);
-                            candidates.Add(j);
-                        }
-                        
-                        conflicts++;
+                        continue;
                     }
+                    if (candidates != null)
+                    {
+                        candidates.Add(i);
+                        candidates.Add(j);
+                    }
+
+                    conflicts++;
                 }
             }
 
             return conflicts;
+        }
+
+        public bool IsBadEdge(int i, int j, Dictionary<int, Color> solution) =>
+            graph.AdjenancyMatrix[i, j].Exists && solution[i] == solution[j];
+
+        public Dictionary<int, Color> CreateRandomInitSolution(IEnumerable<Color> colors)
+        {
+            var solution = new Dictionary<int, Color>();
+            var random = new Random();
+
+            for (int i = 0; i < graph.GetNumberOfVertices(); i++)
+            {
+                solution.Add(i, colors.ElementAt(random.Next(0, numberOfColors)));
+            }
+
+            return solution;
+        }
+
+        public Dictionary<int, Color> GenerateGreedySolutionDict(UndirectedGraph graph)
+        {
+            var greedy = new GraphColoringGreedy(graph);
+            greedy.Color();
+            var res = new Dictionary<int, Color>();
+
+            for (int i = 0; i < graph.GetNumberOfVertices(); i++)
+            {
+                res.Add(i, (Color)graph.GetColor(i));
+            }
+
+            return res;
         }
     }
 }
