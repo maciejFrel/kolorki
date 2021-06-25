@@ -52,15 +52,15 @@ namespace Kolorki
 
     public enum Instance
     {
-        queen6 = 1,
-        miles250,
-        gc_1000_300013,
-        gc500,
-        le450_5a,
-        miles1000, // 42
-        myciel4, // 5
-        myciel7, // 8
-        homer, // 13
-        queen13 // 13
+        queen6 = 1, //      7
+        miles250, //        8
+        gc_1000_300013, //  ?????
+        gc500, //           ?????
+        le450_5a, //        5
+        miles1000, //       42
+        myciel4, //         5
+        myciel7, //         8
+        homer, //           13
+        queen13 //          13
     }
 }
