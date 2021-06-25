@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Kolorki
@@ -23,14 +24,24 @@ namespace Kolorki
 
         public void Run()
         {
+            var timer = new Stopwatch();
+            graph.Print();
+            timer.Start();
             var colors = Enum.GetValues(typeof(Color)).Cast<Color>().Take(numberOfColors).ToList();
-            var solution = CreateRandomInitSolution(colors);
+
+
+            var solution = GenerateGreedySolutionDict(graph);
+            solution = ReplaceOneColorWithOther(solution);
+            colors = solution.Select(x => x.Value).Distinct().ToList();
+
             var random = new Random();
 
             var bestSolutionSoFar = new Dictionary<int, int>();
             var iterations = 0;
             var tabu = new List<Tuple<int, Color>>();
             var conflicts = 0;
+            var listOfConflicts = new List<int>();
+
 
             while (iterations < maxIterations)
             {
@@ -38,15 +49,20 @@ namespace Kolorki
                 conflicts = CountConflictsAndUpdateCandidates(solution, moveCandidates);
 
                 if (conflicts == 0)
-                    break;
-                Console.WriteLine($"Conflicts {conflicts}");
-
+                {
+                    Console.WriteLine($"Solution found for {colors.Count} colors!");
+                    solution = ReplaceOneColorWithOther(solution);
+                    colors = solution.Select(x => x.Value).Distinct().ToList();
+                    conflicts = CountConflictsAndUpdateCandidates(solution, moveCandidates);
+                }
+             
                 var randomMoveCandidates = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
                 var newSolution = new Dictionary<int, Color>(solution); 
 
                 for (int r = 0; r < reps; r++)
                 {
-                    var newColor = colors.Where(x => x != solution[randomMoveCandidates]).ElementAt(random.Next(0, colors.Count - 1));
+                    var newColorTmp = colors.Where(x => x != solution[randomMoveCandidates]).ToList();
+                    var newColor =   newColorTmp.ElementAt(random.Next(0, newColorTmp.Count));
                     randomMoveCandidates = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
                     newSolution = new Dictionary<int, Color>(solution)
                     {
@@ -71,10 +87,9 @@ namespace Kolorki
                             break;
                         }
                     }
-                    else
+                    else if(tabu.Contains(new Tuple<int, Color>(randomMoveCandidates, newColor)))
                     {
-                        if (tabu.Contains(new Tuple<int, Color>(randomMoveCandidates, newColor)))
-                            continue;
+                        continue;
                     }
                     break;
                 }
@@ -86,14 +101,24 @@ namespace Kolorki
                     tabu.RemoveAt(0);
                 }
 
+                listOfConflicts.Add(conflicts);
+                if (iterations != 0 && iterations % 5 == 0)
+                {
+                    Console.WriteLine($"Last 5 conflicts for {colors.Count} colors: {listOfConflicts[0]}, {listOfConflicts[1]}, " +
+                        $"{listOfConflicts[2]}, {listOfConflicts[3]}, {listOfConflicts[4]}");
+                    listOfConflicts.RemoveAll(x => x > -1);
+                }
+
                 solution = newSolution;
                 iterations++;
             }
+            timer.Stop();
+            Console.WriteLine($"Algorithm finished running time: {timer.Elapsed.TotalSeconds} seconds");
 
             if (conflicts != 0)
-                Console.WriteLine($"No solution found!, {conflicts}");
+                Console.WriteLine($"Solution found for {colors.Count + 1} colors!");
             else
-                Console.WriteLine("Solution found!");
+                Console.WriteLine("Solution found for {colors.Count} colors!");
         }
 
         public int DictInserIfNotExistsAndGetValue(Dictionary<int, int> dict, int value)
@@ -152,6 +177,20 @@ namespace Kolorki
             }
 
             return solution;
+        }
+
+        private Dictionary<int, Color> ReplaceOneColorWithOther(Dictionary<int, Color> solution)
+        {
+            var copySolution2 = new Dictionary<int, Color>(solution);
+            var tColor2 = solution.Select(x => x.Value).ToList();
+            foreach (var item in solution)
+            {
+                if (item.Value == tColor2[0])
+                {
+                    copySolution2[item.Key] = tColor2[1];
+                }
+            }
+            return copySolution2;
         }
 
         public Dictionary<int, Color> GenerateGreedySolutionDict(UndirectedGraph graph)
