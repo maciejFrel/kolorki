@@ -55,7 +55,7 @@ namespace Kolorki
                     colors = solution.Select(x => x.Value).Distinct().ToList();
                     conflicts = CountConflictsAndUpdateCandidates(solution, moveCandidates);
                 }
-             
+                
                 var randomMoveCandidates = moveCandidates.ElementAt(random.Next(0, moveCandidates.Count));
                 var newSolution = new Dictionary<int, Color>(solution); 
 
@@ -166,28 +166,16 @@ namespace Kolorki
         public bool IsBadEdge(int i, int j, Dictionary<int, Color> solution) =>
             graph.AdjenancyMatrix[i, j].Exists && solution[i] == solution[j];
 
-        public Dictionary<int, Color> CreateRandomInitSolution(IEnumerable<Color> colors)
-        {
-            var solution = new Dictionary<int, Color>();
-            var random = new Random();
-
-            for (int i = 0; i < graph.GetNumberOfVertices(); i++)
-            {
-                solution.Add(i, colors.ElementAt(random.Next(0, numberOfColors)));
-            }
-
-            return solution;
-        }
-
         private Dictionary<int, Color> ReplaceOneColorWithOther(Dictionary<int, Color> solution)
         {
             var copySolution2 = new Dictionary<int, Color>(solution);
             var tColor2 = solution.Select(x => x.Value).ToList();
+            var colorNotUsedByNeighbour = tColor2.Where(x => x != tColor2[0]).FirstOrDefault();
             foreach (var item in solution)
             {
                 if (item.Value == tColor2[0])
                 {
-                    copySolution2[item.Key] = tColor2[1];
+                    copySolution2[item.Key] = colorNotUsedByNeighbour;
                 }
             }
             return copySolution2;
